@@ -1,0 +1,46 @@
+﻿<Window x:Class="WorkshopDownloader.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WorkshopDownloader"
+        mc:Ignorable="d"
+        Title="Steam Workshop Downloader" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Margin="0 5px">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" FontSize="14px">
+                Download Directory:
+            </Label>
+            <TextBox Grid.Column="1" Name="DownloadDirectory" Margin="5px 0" />
+            <Button Grid.Column="2" Click="OpenSettingsWindow">Settings</Button>
+        </Grid>
+        <Grid Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140"></ColumnDefinition>
+                <ColumnDefinition Width="440"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" FontSize="18px">
+                Workshop URL:
+            </Label>
+            <TextBox Grid.Column="1" Name="WorkshopUrl" Margin="5px" Height="20" />
+            <Button Name="FetchButton" Grid.Column="2" Width="70" Height="20" IsEnabled="False">Fetch</Button>
+            <Button Name="DownloadButton" Grid.Column="3" Width="70" Height="20" IsEnabled="False">Download</Button>
+            <Button Name="ClearButton" Grid.Column="4" Width="70" Height="20" IsEnabled="False">Clear</Button>
+        </Grid>
+        <ListBox Grid.Row="2" Name="Items">
+        </ListBox>
+    </Grid>
+</Window>
