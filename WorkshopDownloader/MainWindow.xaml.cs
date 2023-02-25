@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -35,7 +36,7 @@ namespace WorkshopDownloader
     public partial class MainWindow : Window
     {
         private static readonly Regex WorkshopUrlRegex =
-            new Regex(@"https?://steamcommunity.com\/sharedfiles/filedetails/\?id=(\d+)");
+            new Regex(@"https?://steamcommunity.com\/(workshop|sharedfiles)/filedetails/\?id=(\d+)");
         
         private int itemId;
         private int gameId;
@@ -59,6 +60,7 @@ namespace WorkshopDownloader
             DownloadButton.Click += DownloadItems;
             WorkshopUrl.TextChanged += ValidateFetchButton;
             DownloadDirectory.TextChanged += ValidateFetchButton;
+            Items.AddHandler(KeyDownEvent, new KeyEventHandler(OnWorkshopItemKeyDown));
         }
 
         private void OpenSettingsWindow(object sender, RoutedEventArgs routedEventArgs)
@@ -178,7 +180,7 @@ namespace WorkshopDownloader
             var match = WorkshopUrlRegex.Match(WorkshopUrl.Text);
             if (match.Success)
             {
-                var id = match.Groups[1].Value;
+                var id = match.Groups[2].Value;
                 Debug.WriteLine($"fetching id = {id}");
                 try
                 {
@@ -211,6 +213,63 @@ namespace WorkshopDownloader
             else
             {
                 MessageBox.Show("Url is not a valid workshop url", "Invalid Url", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AddItem(WorkshopItem item)
+        {
+            downloadQueue.Add(item);
+            var entry = new ListBoxItem()
+            {
+                Content = new Label()
+                {
+                    Content = $"{item.Title} ({item.PublishedFileId})",
+                    Name = item.PublishedFileId
+                }
+            };
+            var menu = Items.Items.Add(entry);
+        }
+
+        private void OnWorkshopItemMouseClick(object sender, MouseButtonEventArgs e)
+        {
+            var label = (Label)sender;
+            OpenBrowser($"https://steamcommunity.com/sharedfiles/filedetails/?id={label.Name}");
+        }
+
+        private void OnWorkshopItemKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key is Key.Delete or Key.Back)
+            {
+                Debug.WriteLine("[correct] Key: " + e.Key.ToString());
+                Debug.WriteLine("Selected items: " + Items.SelectedItems.Count);
+                foreach (var item in Items.SelectedItems)
+                {
+                    Debug.WriteLine($"item {item}");
+                    if (item is Label label)
+                    {
+                        Debug.WriteLine($"Delete: {label.Content}");
+                    }
+                }
+            }
+            else
+            {
+                Debug.WriteLine("Key: " + e.Key.ToString() + " SystemKey: " + e.SystemKey.ToString());
+            }
+        }
+        
+        public static void OpenBrowser(string url)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo("cmd", $"/c start {url}"));
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", url);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", url);
             }
         }
 
